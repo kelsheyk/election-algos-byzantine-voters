@@ -19,12 +19,18 @@ public class PrunedKemeny {
     // set of all permutations of K candidates
     ArrayList<ArrayList<String>> P;
     //ballot[(a,b)] is # of voters that prefer candidate a to candidate b
-    //HashMap<String, HashMap<String, Integer>> ballot;
-    HashMap<Pair, Integer> ballott;
-    ArrayList<String> B; // agreed upon ballot of n votes
+    HashMap<Pair, Integer> ballot;
+    // agreed upon ballot of n votes
+    ArrayList<String> B;
     int maxScore = 0;
     ArrayList<String> maxRank = null;
+
     
+    /*
+    *  1. Parses the input file to populate voterData
+    *  2. Computes all permutations (P) of the candidateList
+    *  3. Tallys the votes inot this.ballot for pairwise comparison
+    */
     public PrunedKemeny(String fname, int numByzantine) throws Exception {
         VoteParser vp = new VoteParser(fname);
         this.voterData = vp.parseVotes();
@@ -38,9 +44,13 @@ public class PrunedKemeny {
         tallyVotes();
     }
     
+    /*
+    *  Create ballot of pairwise comparisons.
+    *  ballot[(a,b)] is the number of candidates that prefer a to b
+    */
     private void tallyVotes() {
         // Starting point: all pairs 0
-        this.ballott = new HashMap<>();
+        this.ballot = new HashMap<>();
         String c1, c2;
         for (int i=0; i<this.numCandidates; i++) {
             c1 = this.candidateList.get(i);
@@ -48,7 +58,7 @@ public class PrunedKemeny {
                 if (i != j) {
                     c2 = this.candidateList.get(j);
                     Pair<String, String> pair = new Pair<>(c1, c2);
-                    this.ballott.put(pair, 0);
+                    this.ballot.put(pair, 0);
                 }
             }
         }
@@ -63,14 +73,16 @@ public class PrunedKemeny {
                 for (int j=i+1; j<this.numCandidates; j++) {
                     c2 = voterRank.get(j);
                     Pair<String, String> pair = new Pair<>(c1, c2);
-                    pairwiseCount = this.ballott.get(pair);
-                    this.ballott.put(pair, pairwiseCount + 1);
+                    pairwiseCount = this.ballot.get(pair);
+                    this.ballot.put(pair, pairwiseCount + 1);
                 }
             }
         }
     }
     
-    // return Kendall tau distance between two permutations
+    /* 
+    *  returns Kendall tau distance between two permutations
+    */
     public static int distance(ArrayList<String> a, ArrayList<String> b) {
         if (a.size() != b.size()) {
             throw new IllegalArgumentException("Arrays not same size");
@@ -89,10 +101,14 @@ public class PrunedKemeny {
         return distance;
     }
     
+    /*
+    *  Iterates through the rankings to prune the F most distant rankings.
+    *  TODO: Make more efficient. Shouldn't need to iterate through F times.
+    */
     private HashMap<Pair, Integer> pruneBallot(ArrayList<String> r, int F) { 
         HashMap<Pair, Integer> prunedBallot = new HashMap<>();
         // clone ballot to prunedBallot.
-        prunedBallot = (HashMap<Pair, Integer>) this.ballott.clone();
+        prunedBallot = (HashMap<Pair, Integer>) this.ballot.clone();
 
         // Clone voterData
         ArrayList<ArrayList<String>> voterDataCopy = new ArrayList<>();
@@ -132,6 +148,9 @@ public class PrunedKemeny {
         return prunedBallot;
     }
     
+    /*
+    *  returns the Kemeny-Young score of a particular ranking an a ballot.
+    */
     private int KemenyYoungScore(ArrayList<String> ranking, HashMap<Pair, Integer> ballot) {
         int score = 0;
         //for each pair (a≻b) in ranking:
@@ -142,12 +161,16 @@ public class PrunedKemeny {
             for (int j=i+1; j<ranking.size(); j++) {
                 c2 = ranking.get(j);
                 Pair<String, String> pair = new Pair<>(c1, c2);
-                score = score + this.ballott.get(pair);
+                score = score + this.ballot.get(pair);
             }
         }
         return score;
     }
     
+    /*
+    *  Run Pruned Kemeny:
+    *    Find the ranking with the maximum Kemeny Young Score & return it.
+    */
     public ArrayList<String> run() {
         ArrayList<String> r;
         int score;
@@ -156,7 +179,7 @@ public class PrunedKemeny {
             r = P.get(i);
             
             // Non-Pruned Kemeny
-            //score = KemenyYoungScore(r, this.ballott);
+            //score = KemenyYoungScore(r, this.ballot);
             
             // Pruned Kemeny
             prunedBallot = pruneBallot(r, this.numByzantine);
