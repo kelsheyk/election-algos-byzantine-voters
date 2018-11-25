@@ -15,8 +15,25 @@ To run Pruned Kemeny:
 F: The number of suspected byzantine voters to prune.
 inputFileName: Input file of voter rankings as described above
 
+Example:
+    java -cp ".;Libraries/*" prunedkemeny.PrunedKemeny 2 TestCases\ThreeCandidateSevenVoter.txt
+
 
 Assumptions:
 There is a strict order on candidate preference -- a voter cannot be indifferent between 2 candidates.
 Every voter ranks all candidates.
+
+# Build steps from the command line
+
+Windows:
+
+1. Have java jdk bin on your path
+2. Navigate to the root directory election-algos-byzantine-voters
+4. Run `javac -d . -classpath ".;Libraries/*" *java` 
+    1. Note that `-d .` creates the required package directory, prunedkemeny, in the root at build time
+
+Solaris, Linux, and OS X
+
+1. Same as above but use : instead of ; as the classpath separator both for building and running
+
 
