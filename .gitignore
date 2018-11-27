@@ -1,5 +1,9 @@
 # thank you to https://github.com/github/gitignore
 
+#### custom project routine build stuff
+prunedkemeny/production
+prunedkemeny/test
+
 #### Java
 
 # Compiled class file
