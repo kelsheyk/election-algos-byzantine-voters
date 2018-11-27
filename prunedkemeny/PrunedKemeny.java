@@ -51,7 +51,7 @@ public class PrunedKemeny {
         this.P = permutation.performPermute(this.candidateList);
         tallyVotes();
     }
-    
+
     /*
     *  Create ballot of pairwise comparisons.
     *  ballot[(a,b)] is the number of candidates that prefer a to b

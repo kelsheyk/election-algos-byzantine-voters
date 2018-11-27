@@ -15,7 +15,7 @@ The input file format can be easily altered by modifying the VoteParser class.
 * inputFileName: Input file of voter rankings as described above
 
 Example: 
-`java -cp ".;Libraries/*" prunedkemeny.PrunedKemeny 2 TestCases\ThreeCandidateSevenVoter.txt`
+`java -cp ".;Libraries/*" prunedkemeny.PrunedKemeny 2 TestCases/ThreeCandidateSevenVoter.txt`
 
 Assumptions:
 
@@ -30,7 +30,7 @@ Windows:
 
 1. Have java jdk bin on your path
 2. Navigate to the root directory election-algos-byzantine-voters
-4. Run `javac -cp ".;Libraries/*" .\prunedkemeny\*.java`
+4. Run `javac -cp ".;Libraries/*" ./prunedkemeny/*.java`
 
 Solaris, Linux, and OS X
 
@@ -42,3 +42,4 @@ Solaris, Linux, and OS X
 2. File -> Open -> Navigate to git root directory -> Click OK
 3. Run the 2 byzantine and ThreeCandidateSevenVoter configuration
 4. Add or change configurations as needed
+5. If you want to run from the command line but build with IDEA, you'll need to be in /election-algos-byzantine-voters/out/production/election-algos-byzantine-voters instead of the git root
