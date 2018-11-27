@@ -33,17 +33,25 @@ public class PrunedKemeny {
     */
     public PrunedKemeny(String fname, int numByzantine) throws Exception {
         VoteParser vp = new VoteParser(fname);
-        this.voterData = vp.parseVotes();
+        setVoterDataAndPermutation(vp.parseVotes(), numByzantine);
+    }
+
+    public PrunedKemeny(ArrayList<ArrayList<String>> voterData, int numByzantine) throws Exception {
+        setVoterDataAndPermutation(voterData, numByzantine);
+    }
+
+    private void setVoterDataAndPermutation(ArrayList<ArrayList<String>> voterData, int numByzantine) {
+        this.voterData = voterData;
         this.numByzantine = numByzantine;
         this.numVoters = this.voterData.size();
         this.candidateList = this.voterData.get(0); // Order does not matter, just grab first
         this.numCandidates = this.candidateList.size();
         // compute P.
-        Permutation permutation = new Permutation(); 
+        Permutation permutation = new Permutation();
         this.P = permutation.performPermute(this.candidateList);
         tallyVotes();
     }
-    
+
     /*
     *  Create ballot of pairwise comparisons.
     *  ballot[(a,b)] is the number of candidates that prefer a to b
