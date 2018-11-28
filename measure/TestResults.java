@@ -15,5 +15,5 @@ for each algorithm we're testing:
     Which is fine it's not worth moving stuff around for a school project, as long as that class is doing everything we need it to do.
 
  */
-public class AlgoRunner {
+public class TestResults {
 }

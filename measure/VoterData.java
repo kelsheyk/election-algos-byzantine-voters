@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import org.javatuples.Pair;
 
+import javax.xml.transform.Result;
+
 public class VoterData {
     // There will be 6 different charts output, one for 3, 4, 5, 6, 7, and 8 candidates
     // The ideal order varies with the number of candidates and is simply alphabetical
@@ -22,22 +24,30 @@ public class VoterData {
     private final int goodProbIncrement = 5;
     private final int minCandidates = 3;
     private final int maxCandidates = 8; // they'll be named alphabetically automatically so don't go over 26 unless you tweak how they're named
-    private final ArrayList<CandidateCount> candidateCounts = new ArrayList<CandidateCount>();
-    private final ArrayList<Integer> goodProbabilities = new ArrayList<Integer>();
-    private final ArrayList<ArrayList<ArrayList<String>>> VoterDataCollection = new ArrayList<ArrayList<ArrayList<String>>>(); // i heard you like lists
+    private final ArrayList<Integer> goodProbabilities = new ArrayList<>();
 
-    class CandidateCount {
-        int count;
+    // Collected Ballots [Good Probabilities] [ Elections 0 to 49] [ Voter Preferences in order 0 to candidate count-1]
+    // This started out just a big matrix of lists but i made objects instead because i think i'll need extra properties later
+    public final ArrayList<ResultsForCandidateCount> CollectedBallots = new ArrayList<>();
+
+
+    // The number of candidates for the test is the highest level we have, it informs the graphs that will be in the paper
+    // Printing to string returns the ideal order of candidates
+    class ResultsForCandidateCount {
+        final int count;
         final ArrayList<String> idealOrder;
+        final ArrayList<ResultsByGoodProbability> VoterDataCollection = new ArrayList<>();
 
-        public CandidateCount (int count) {
-            this.count = count;
+        public ResultsForCandidateCount (int count) {
+           this.count = count;
             idealOrder = new ArrayList<String>();
             // 97 is 'a' on the ascii table
             for (int i = 97; i < 97+count; i++) {
                 idealOrder.add(String.valueOf((char)i));
             }
 
+           // VoterDataCollection will be added to by the class who instantiates this
+           // then this will be tossed into CollectedBallots for later use by code running each algorithm
         }
 
         @Override
@@ -48,17 +58,29 @@ public class VoterData {
 
     }
 
+    class ResultsByGoodProbability {
+        final int probability;
+        final ArrayList<ArrayList<ArrayList<String>>> elections = new ArrayList<>();
+
+        public ResultsByGoodProbability (int probability) {
+            this.probability = probability;
+            // elections gets populated later by the instantiating class
+        }
+    }
+
+    
+
     // Single election of X candidates, 100 voters, and Y good probability.
     // Input is the list of candidates in ideal order and good probabability.
     // Also uses these final global variables goodVoters, badVoters, totalVoters, badProb.
     // Output is a list of voters represented by their ordered list of candidates
     class Election {
-        final ArrayList<ArrayList<String>> electionData = new ArrayList<ArrayList<String>>();
+        final ArrayList<ArrayList<String>> electionData = new ArrayList<>();
 
         public Election(HashMap idealPairs, int goodProb, int numOfCandidates) {
 
             for (int i = 0; i < totalVoters; i++) {
-                ArrayList<String> voterPreferences = new ArrayList<String>(numOfCandidates);
+                ArrayList<String> voterPreferences = new ArrayList<>(numOfCandidates);
                 for (int j = 0; j < numOfCandidates; j++) {
 
                     if (i < goodVoters) { // do good
@@ -68,8 +90,9 @@ public class VoterData {
                         // for each candidate pair, invert the ideal order 90 percent of the time, otherwise the ideal order
 
                     }
-                    /* need to figure out if i need to do something like this or if i can build the voter pref list directly
-
+                    // need a step where i take the pairs and turn them back into an ordered list
+                    // i'm pretty sure all our algos are going to turn the list back into pairs then back into a list, but too late now
+                    /* maybe this from kelsey's pruned kemeny will help:
                     // iterate over voter data & populate pairwise prefs
                     ArrayList<String> voterRank;
                     int pairwiseCount;
@@ -99,25 +122,32 @@ public class VoterData {
     }
 
 
+    // Create all the election data and voter preferences in memory
+    // Some separate cass or method will pipe it into the different algorgitms and calculate distances from ideal
+    // this should probably just be tbe public constructor
     public void run () {
         for (int i = minCandidates; i < maxCandidates + 1; i++) {
-            candidateCounts.add(new CandidateCount(i));
+            CollectedBallots.add(new ResultsForCandidateCount(i)); // we need this later to populate the results into it
         }
 
         for (int i = goodProbMin; i < goodProbMax + 1; i = i + goodProbIncrement) {
             goodProbabilities.add(i);
         }
 
-        for (CandidateCount batch : candidateCounts) {
+        for (ResultsForCandidateCount candCount : CollectedBallots) {
 
             // Borrowing this structure from Kelsey's PrunedKemeny
+            // we're converting the list of ideal canditates, "A", "B", "C" into ordered pairs like:
+            // "A/B" "A/C" "B/C".
+            // Since pairs say "A/B" is equal to "B/A", the HashMap will prevent dupes....**??????!!!???
+            // However the order is important, the first one is the voter preference over the second
             HashMap idealPairs = new HashMap<>();
             String c1, c2;
-            for (int i = 0; i < batch.idealOrder.size(); i++) {
-                c1 = batch.idealOrder.get(i);
-                for (int j = 0; j < batch.idealOrder.size(); j++) {
+            for (int i = 0; i < candCount.count; i++) {
+                c1 = candCount.idealOrder.get(i);
+                for (int j = 0; j < candCount.count; j++) {
                     if (i != j) {
-                        c2 = batch.idealOrder.get(j);
+                        c2 = candCount.idealOrder.get(j);
                         Pair<String, String> pair = new Pair<>(c1, c2);
                         idealPairs.put(pair, 0);
                     }
@@ -125,20 +155,34 @@ public class VoterData {
             }
 
             for (Integer goodProb : goodProbabilities) {
-                Election e;
-                for (int i = 0; i < aggregateBallots; i++) {
-                    e = new Election(idealPairs, goodProb, batch.idealOrder.size());
-                    VoterDataCollection.add(e.electionData);
-                    // what do i do with this data? we probably want to get out of all these loops.
-                    // stash the data in memory because we'll need to loop through it to send one election at a time to a given algorithm
-                    // they come back with a rank, we compare that to ideal
-                    // which kind of silly we're all doing pairs but we're passing them as lists that seems redundant, oh well
+                ResultsByGoodProbability results = new ResultsByGoodProbability(goodProb);
+
+                for (int i = 0; i < aggregateBallots; i++) { // 50 runs
+                    Election e = new Election(idealPairs, goodProb, candCount.count);
+                    results.elections.add(e.electionData);
 
                 }
+                candCount.VoterDataCollection.add(results);
 
             }
-
-
+            /*
+            *   At this point, CollectedBallots has 6 items, one for each count of candidates from 3 to 8.
+            *
+            *   Each candidate count VoterDataCollection list which has 7 items, one for each good probability from 55 to
+            * 90 in increments of 5.
+            *
+            *   Each good probability item on it has an elections list which has 50 items, one for each set of voter
+            * preferences we generated.
+            *
+            *   Each voter preferences item is a matrix of 100 lists of ordered candidate names which represent the
+            * randomly generated preferences for each of 100 voters.
+            *
+            *   That completes the variety of input data we feed into the algorithms to get outputs to compare to ideal
+            * and graph it all out. In theory we could have run this once and saved to files or generated it in some
+            * spreadsheet, but neither of those would have been a lot easier for me. It's still a fairly complicated
+            * script that would need to be run.
+            *
+             */
 
         }
 
@@ -151,7 +195,7 @@ public class VoterData {
     public static void main(String[] args) throws Exception {
         VoterData d = new VoterData();
         d.run();
-        System.out.println(Arrays.toString(d.candidateCounts.toArray()));
+        System.out.println(Arrays.toString(d.CollectedBallots.toArray())); // prints each ResultsByCandidateCount which prints the ideal order
         System.out.println(Arrays.toString(d.goodProbabilities.toArray()));
     }
 
