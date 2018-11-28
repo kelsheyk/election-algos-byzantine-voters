@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/election-algos-byzantine-voters.iml" filepath="$PROJECT_DIR$/.idea/election-algos-byzantine-voters.iml" />
-      <module fileurl="file://$PROJECT_DIR$/measurement/measurement.iml" filepath="$PROJECT_DIR$/measurement/measurement.iml" />
     </modules>
   </component>
 </project>
