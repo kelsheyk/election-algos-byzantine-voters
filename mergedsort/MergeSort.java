@@ -1,9 +1,6 @@
 package mergedsort;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.javatuples.Pair;
 import org.javatuples.Tuple;
@@ -13,10 +10,12 @@ public class MergeSort {
     public ArrayList<ArrayList<String>> voterData;
     private Integer numCandidates;
     private ArrayList<String> candidateList;
-    private HashMap<Tuple, Integer> ballot;
+    private HashMap<Pair, Integer> ballot;
     private Integer numVoters;
-    public MergeSort(ArrayList<ArrayList<String>> voterData) {
+    private Integer numByzantine;
+    public MergeSort(ArrayList<ArrayList<String>> voterData, Integer numByzantine) {
         this.voterData = voterData;
+        this.numByzantine = numByzantine;
     }
 
     public void run() {
@@ -25,7 +24,15 @@ public class MergeSort {
         this.numVoters = this.voterData.size();
         this.ballot = new HashMap<>();
         this.tallyVotes();
-        ArrayList<String> sortedCandidates = sortCandidates();
+        ArrayList<String> sortedCandidates;
+        if (this.numByzantine == 0) {
+            sortedCandidates = sortCandidates();
+        } else {
+            ArrayList<Integer> badVoterIndexes = findBadVoters();
+            this.tallyVotes(badVoterIndexes);
+            sortedCandidates = sortCandidates();
+
+        }
         output(sortedCandidates);
 
     }
@@ -39,8 +46,56 @@ public class MergeSort {
         sortedCandidates = mergeSort(this.candidateList);
         return sortedCandidates;
     }
+    private static List<Map.Entry<Pair, Integer>> sortByValue(HashMap<Pair, Integer> hm) {
+        // Create a list from elements of HashMap
+        List<Map.Entry<Pair, Integer>> list = new LinkedList<Map.Entry<Pair, Integer> >(hm.entrySet());
 
-    /**
+        // Sort the list
+        Collections.sort(list, new Comparator<Map.Entry<Pair, Integer> >() {
+            public int compare(Map.Entry<Pair, Integer> o1, Map.Entry<Pair, Integer> o2) {
+                return (o2.getValue()).compareTo(o1.getValue());
+            }
+        });
+
+        return list;
+    }
+    private ArrayList<Integer> getOpposingVoters(String left, String right) {
+        ArrayList<Integer> opposingVoters = new ArrayList();
+        ArrayList<String> voterRank;
+        for (int voterIndex=0; voterIndex<this.numVoters; voterIndex++) {
+            voterRank = this.voterData.get(voterIndex);
+            if (voterRank.indexOf(left) > voterRank.indexOf(right)) {
+                opposingVoters.add(voterIndex);
+            }
+        }
+        return opposingVoters;
+    }
+    private boolean pathExists(String l, String r, ArrayList<Pair> pairs) {
+        Pair<String, String> p = new Pair<>(l, r);
+        if (pairs.indexOf(p) >=0) {
+            assert true; //todo delete me
+            return true;
+        }
+        pairs.remove(p);
+        for (Pair pair: pairs) {
+            String c1 = (String) pair.getValue0();
+            String c2 = (String) pair.getValue1();
+            if (c1.equals(l)) {
+                if (pathExists(c2, r, pairs)) {
+                    assert true; //todo delete me
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean noCycle(Pair p, ArrayList<Pair> pairs) {
+        String c1 = (String) p.getValue0();
+        String c2 = (String) p.getValue1();
+        return !(pathExists(c2, c1, pairs));
+    }
+
 
     public ArrayList<Integer> findBadVoters() {
         ArrayList<String> r = new ArrayList();
@@ -69,7 +124,7 @@ public class MergeSort {
             ArrayList<Integer> opposingVoters = getOpposingVoters(c1, c2);
             // Increment every opposing voter by the weight of the pair
             for (Integer voterIndex : opposingVoters) {
-                badVoters[voterIndex]+= en.getValue();
+                badVoters[voterIndex] += en.getValue();
             }
 
             Pair p = new Pair(c2, c1);
@@ -77,7 +132,23 @@ public class MergeSort {
                 break;
             }
         }
-     */
+        // Now we have the array of badVoters populated.
+        // Get the indexes of the top F
+        ArrayList<Integer> badVoterIndexes = new ArrayList();
+        int max = 0;
+        int maxIndex = 0;
+        for (int i=0; i<this.numByzantine; i++) {
+            max = 0;
+            for (int j=0; j<badVoters.length; j++) {
+                if (badVoters[j] > max) {
+                    maxIndex = j;
+                }
+            }
+            badVoters[maxIndex] = 0;
+            badVoterIndexes.add(maxIndex);
+        }
+        return badVoterIndexes;
+    }
 
     private ArrayList<String> mergeSort(ArrayList<String> list) {
         if (list.size() == 1) {
@@ -126,7 +197,43 @@ public class MergeSort {
             result.add(firstRight);
         }
         return result;
+    }
+
+    private void tallyVotes(ArrayList<Integer> badVoterIds) {
+        // Starting point: all pairs 0
+        String c1, c2;
+        for (int i=0; i<this.numCandidates; i++) {
+            c1 = this.candidateList.get(i);
+            for (int j=0; j<this.numCandidates; j++) {
+                if (i != j) {
+                    c2 = this.candidateList.get(j);
+                    Pair<String, String> pair = new Pair<>(c1, c2);
+                    this.ballot.put(pair, 0);
+                }
+            }
         }
+
+        // iterate over voter data & populate pairwise prefs
+        ArrayList<String> voterRank;
+        int pairwiseCount;
+        for (int voterIndex=0; voterIndex<this.numVoters; voterIndex++) {
+            if (badVoterIds.indexOf(voterIndex) < 0) {
+                voterRank = this.voterData.get(voterIndex);
+                for (int i=0; i<this.numCandidates; i++) {
+                    c1 = voterRank.get(i);
+                    for (int j=i+1; j<this.numCandidates; j++) {
+                        c2 = voterRank.get(j);
+                        Pair<String, String> pair = new Pair<>(c1, c2);
+                        pairwiseCount = this.ballot.get(pair);
+                        this.ballot.put(pair, pairwiseCount + 1);
+                    }
+                }
+            }
+        }
+
+    }
+
+
 
     private void tallyVotes() {
         // Starting point: all pairs 0
@@ -172,7 +279,7 @@ public class MergeSort {
             System.exit(1);
             return;
         }
-        MergeSort ms = new MergeSort(parsedVotes);
+        MergeSort ms = new MergeSort(parsedVotes, Integer.parseInt(args[0]));
         ms.run();
     }
 
