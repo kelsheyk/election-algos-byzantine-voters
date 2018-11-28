@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="run voter data" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="measure.VoterData" />
+    <module name="election-algos-byzantine-voters" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
