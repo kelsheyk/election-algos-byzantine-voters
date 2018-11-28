@@ -1,6 +1,7 @@
 package mergedsort;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,8 +26,12 @@ public class MergeSort {
         this.ballot = new HashMap<>();
         this.tallyVotes();
         ArrayList<String> sortedCandidates = sortCandidates();
-        System.out.println(sortedCandidates.get(0));
+        output(sortedCandidates);
 
+    }
+
+    private static void output(ArrayList<String> sortedCandidates) {
+        System.out.println(Arrays.toString(sortedCandidates.toArray()));
     }
 
     private ArrayList<String> sortCandidates() {
@@ -101,21 +106,23 @@ public class MergeSort {
         ArrayList<String> result = new ArrayList<>();
 
         while (left.size() != 0 && right.size() != 0) {
-            String firstLeft = left.remove(0);
-            String firstRight = right.remove(0);
+            String firstLeft = left.get(0);
+            String firstRight = right.get(0);
             if (this.ballot.get(new Pair<>(firstLeft, firstRight)) >= this.ballot.get(new Pair<>(firstRight, firstLeft))) {
                 result.add(firstLeft);
+                left.remove(0);
             } else {
                 result.add(firstRight);
+                right.remove(0);
             }
         }
 
         while (left.size() != 0) {
-            String firstLeft = result.remove(0);
+            String firstLeft = left.remove(0);
             result.add(firstLeft);
         }
         while (right.size() != 0) {
-            String firstRight = result.remove(0);
+            String firstRight = right.remove(0);
             result.add(firstRight);
         }
         return result;

@@ -2,9 +2,7 @@
   <configuration default="false" name="2 byzantine and ThreeCandidateSevenVoter" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="prunedkemeny.PrunedKemeny" />
     <module name="election-algos-byzantine-voters" />
-    <option name="PROGRAM_PARAMETERS" value="2 TestCases\ThreeCandidateSevenVoter.txt" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
+    <option name="PROGRAM_PARAMETERS" value="2 TestCases/ThreeCandidateSevenVoter.txt" />
+    <method />
   </configuration>
 </component>
