@@ -24,10 +24,10 @@ public class TestResults {
 
             for (VoterData.ResultsByGoodProbability goodProb : candidateCount.VoterDataCollection) {
                 int[] distances = new int[data.aggregateBallots];
-                for (ArrayList<ArrayList<String>> election : goodProb.elections) {
-                    prunedkemeny.PrunedKemeny pk = new prunedkemeny.PrunedKemeny(election, data.badVoters);
+                for (int i = 0; i < goodProb.elections.size(); i++) {
+                    prunedkemeny.PrunedKemeny pk = new prunedkemeny.PrunedKemeny(goodProb.elections.get(i), data.badVoters);
                     ArrayList<String> result = pk.run();
-                    distances[election.indexOf(election)] = findDistance(candidateCount.idealOrder, result);
+                    distances[i] = findDistance(candidateCount.idealOrder, result);
                 }
                 /// shamelessly copied from https://www.baeldung.com/java-array-sum-average
                 double avgDistance =  Arrays.stream(distances).average().orElse(Double.NaN);
@@ -35,7 +35,7 @@ public class TestResults {
             }
             candidateCount.RecordAlgorithmResults("Pruned Kemeny", coordinates);
 
-            System.out.println("For " + candidateCount.count + "candidates:");
+            System.out.println("For " + candidateCount.count + " candidates:");
             System.out.println(Arrays.toString(candidateCount.GetAllAlgorithmResultsForLatex().toArray()));
             // this should have printed something easily portable to https://www.overleaf.com/learn/latex/Pgfplots_package
             System.out.println("-----");
