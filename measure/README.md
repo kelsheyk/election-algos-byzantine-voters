@@ -4,6 +4,11 @@
 1. Reproduce the experimental results from the Pruned-Kemeny paper for Pruned-Kemeny and Kemeny
 2. Determine if/when there is a quality-tradeoff with our algorithm compared to Pruned-Kemeny
 
+## Hypothesis
+
+* Kemeny and Pruned are similar to results from paper
+* The pruned versions of our less sophisticated (but faster) algorithms outperform the normal versions and underperform Pruned Kemeny
+* How much they under perform is what's going to be interesting and useful.
 
 ## Definitions and Assumptions
 
@@ -28,31 +33,28 @@ Since we need to reproduce the results, our values here are drawn from the Prune
     * New chart for each number of candidates
     * Might be able to merge the separate charts since we only have 3 algorithms
 
+## Pieces that were build (names may have changed)
 
-## Constructing the ballots, aka Voter Data
+### Constructing the ballots, aka Voter Data
 * for 1-77 times and for each candidate pair, match the ideal order a percent of the time that matches the good probability, otherwise the opposite order
 * for 1-33 times and for each candidate pair, invert the ideal order 90 percent of the time, otherwise the ideal order
 * shuffle the order of the ballots
 * repeat 50 times so we have 50 aggregate ballots per candidate count and good probability
 
-## Calculating Distance from Ideal
+### Calculating Distance from Ideal
 * Compare an output rank to the ideal rank pairwise, any pairs that don't match the ideal order count for 1 distance
 * Re-use function from PrunedKemeny: public static int distance(ArrayList<String> a, ArrayList<String> b) ????
-* No that's kendall tau distance, need to use pairwise
+* No that's kendall tau distance, need to use pairwise? or are the the same? Looks the same
 
-## Algo Runner
+### Algo Runner
 
 * Input: Voter Data, one algorithm name
 * Output: ranking
 
-## Algo Combiner
+### Algo Combiner
 
 * Input: List of Algorithms to test
 * private properties:
     * generated voter data for each increment in the range of good probability and each candidate count
 * Output: for each candidate count for each good probability, for each algorithim, average distance from ideal
 
-## Hypothesis
-
-* Kemeny and Pruned are similar to results from paper
-* The pruned versions of our less sophisticated (but faster) algorithms outperform the normal versions and underperform Pruned Kemeny
