@@ -92,61 +92,55 @@ public class VoterData {
     // Output is a list of voters represented by their ordered list of candidates
     class Election {
         final ArrayList<ArrayList<String>> electionData = new ArrayList<>();
-        HashSet<Pair<String, String>> idealPairs = new HashSet<>();
 
         public Election(ArrayList<String> idealOrder, int goodProb, int numOfCandidates) {
 
-            ArrayList<Pair<String, String>> idealPairs = SplitRankedListToPairs(idealOrder);
-
             for (int i = 0; i < totalVoters; i++) {
 
-                ArrayList<Pair<String, String>> voterPrefPairs = new ArrayList<>();
+                String[] voterPrefs = new String[idealOrder.size()];
+                voterPrefs = idealOrder.toArray(voterPrefs);
 
-                if (i < goodVoters) { // do good
-                    for (Pair<String, String> pair : idealPairs) {
+                for (int c = 0; c < idealOrder.size(); c++) {
+
+                    if (i < goodVoters) { //  we are good voter so try to do good
                         if (random.nextInt(totalVoters) < goodProb) {
                             // Match the ideal order for the pair
-                            voterPrefPairs.add(pair);
+                            // do nothing because voterPrefs starts out in order
                         } else {
                             // Invert the ideal order for the pair
-                            voterPrefPairs.add(new Pair<String,String>(pair.getValue0(), pair.getValue1()));
+                            swapCandidates(voterPrefs, c);
                         }
-                    }
-                }
-                else { // do evil
-                    for (Pair<String, String> pair : idealPairs) {
+                    } else { // we are bad voter so try to do evil
                         if (random.nextInt(totalVoters) < badProb) { // set very high to 90
                             // INVERT ideal order for the pair
-                            voterPrefPairs.add(new Pair<String,String>(pair.getValue0(), pair.getValue1()));
+                            swapCandidates(voterPrefs, c);
                         } else {
                             // Match ideal order for the pair
-                            voterPrefPairs.add(pair);
+                            // do nothing because voterPrefs starts out in order
                         }
                     }
                 }
 
-                electionData.add(MergePrefPairsToOrderedList(voterPrefPairs));
+                electionData.add(new ArrayList<String>(Arrays.asList(voterPrefs)));
             }
             // mix up good and bad voters just in case order affects one of the algorithms
             Collections.shuffle(electionData);
 
         }
 
-        private ArrayList<String> MergePrefPairsToOrderedList(ArrayList<Pair<String, String>> voterPrefPairs) {
-            // for each pair count the number of each of the first values
-            // order them into a list by frequency, highest first
-            HashMap<String, Integer> winnerCounts = new HashMap<>();
-            for (Pair<String, String> pair : voterPrefPairs) {
-                if (winnerCounts.containsKey(pair.getValue0())) {
-                    winnerCounts.replace(pair.getValue0(), winnerCounts.get(pair.getValue0()) + 1);
-                } else {
-                    // Now that i write this i understand why Kelsey was doing it in her vote tally
-                    winnerCounts.put(pair.getValue0(), 0);
-                }
+        private void swapCandidates(String[] voterPrefs, int c) {
+            String swapA = voterPrefs[c];
+            String swapB;
+            if (c == 0) {
+                swapB = voterPrefs[voterPrefs.length - 1];
+                voterPrefs[c] = swapB;
+                voterPrefs[voterPrefs.length - 1] = swapA;
+            } else {
+                swapB = voterPrefs[c - 1];
+                voterPrefs[c] = swapB;
+                voterPrefs[c - 1] = swapA;
             }
-            SortedSet<String> ordered = new SortedSet<String>() {
-                // TODO: figure out how to do this (hint: it won't work like i've planned)
-            }
+            // no return because we are modifying the array directly through its reference
         }
 
         // Thanks Kelsey
