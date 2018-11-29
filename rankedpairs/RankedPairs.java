@@ -4,7 +4,7 @@ import java.util.*;
 import org.javatuples.Pair;
 
 
-public class RankedPairs {
+public class RankedPairs extends prunedkemeny.AbstractDemocracyClass {
     int numVoters;
     int numCandidates;
     // Number of voters to prune out

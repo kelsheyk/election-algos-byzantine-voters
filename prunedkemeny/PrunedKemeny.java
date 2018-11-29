@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.javatuples.Pair;
 
 
-public class PrunedKemeny {
+public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass {
     int numVoters;
     int numCandidates;
     // Number of voters to prune out

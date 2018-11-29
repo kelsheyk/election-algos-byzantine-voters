@@ -3,10 +3,10 @@ package mergedsort;
 import java.util.*;
 
 import org.javatuples.Pair;
-import org.javatuples.Tuple;
 import prunedkemeny.VoteParser;
+import prunedkemeny.AbstractDemocracyClass;
 
-public class MergeSort {
+public class MergeSort extends AbstractDemocracyClass{
     public ArrayList<ArrayList<String>> voterData;
     private Integer numCandidates;
     private ArrayList<String> candidateList;
@@ -18,7 +18,7 @@ public class MergeSort {
         this.numByzantine = numByzantine;
     }
 
-    public void run() {
+    public ArrayList<String> run() {
         this.candidateList = this.voterData.get(0);
         this.numCandidates = this.candidateList.size();
         this.numVoters = this.voterData.size();
@@ -34,6 +34,7 @@ public class MergeSort {
 
         }
         output(sortedCandidates);
+        return sortedCandidates;
 
     }
 
