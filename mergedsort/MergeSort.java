@@ -179,9 +179,12 @@ public class MergeSort {
         while (left.size() != 0 && right.size() != 0) {
             String firstLeft = left.get(0);
             String firstRight = right.get(0);
+            // generate some random int
+            // if the random int > .9
             if (this.ballot.get(new Pair<>(firstLeft, firstRight)) >= this.ballot.get(new Pair<>(firstRight, firstLeft))) {
                 result.add(firstLeft);
                 left.remove(0);
+                // if random int < .9
             } else {
                 result.add(firstRight);
                 right.remove(0);
