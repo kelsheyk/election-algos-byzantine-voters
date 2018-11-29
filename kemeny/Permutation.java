@@ -1,6 +1,5 @@
 package Kemeny;
 
-import prunedkemeny.*;
 import java.util.ArrayList;
 
 public class Permutation {

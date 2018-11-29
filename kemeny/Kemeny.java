@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import org.javatuples.Pair;
+import Kemeny.VoteParser;
+import Kemeny.Permutation;
+
 
 
 public class Kemeny extends prunedkemeny.AbstractDemocracyClass {
@@ -109,6 +112,9 @@ public class Kemeny extends prunedkemeny.AbstractDemocracyClass {
                 score = score + this.ballot.get(pair);
             }
         }
+        if (ranking.size() != this.numCandidates) {
+            throw new IllegalArgumentException("Kemeny: KemenyYoungScore : ranking : Arrays not same size");
+        }
         return score;
     }
     
@@ -121,7 +127,10 @@ public class Kemeny extends prunedkemeny.AbstractDemocracyClass {
         int score;
         for(int i=0; i<this.P.size(); i++) {
             r = P.get(i);
-            
+            if (r.size() != this.numCandidates) {
+                throw new IllegalArgumentException("Kemeny: run : r : Arrays not same size");
+            }
+
             // Non-Pruned Kemeny
             score = KemenyYoungScore(r, this.ballot);
             
@@ -129,6 +138,9 @@ public class Kemeny extends prunedkemeny.AbstractDemocracyClass {
                 this.maxScore = score;
                 this.maxRank = r;
             }
+        }
+        if (this.maxRank.size() != this.numCandidates) {
+            throw new IllegalArgumentException("Kemeny: run : maxRank : Arrays not same size");
         }
         return maxRank;
     }

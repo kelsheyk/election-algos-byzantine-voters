@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 import org.javatuples.Pair;
+import prunedkemeny.VoteParser;
+import prunedkemeny.Permutation;
+
 
 
 public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{

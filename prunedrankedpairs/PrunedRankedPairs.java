@@ -2,6 +2,7 @@ package PrunedRankedPairs;
 
 import java.util.*;
 import org.javatuples.Pair;
+import PrunedRankedPairs.VoteParser;
 
 
 public class PrunedRankedPairs extends prunedkemeny.AbstractDemocracyClass {

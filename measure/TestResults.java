@@ -33,6 +33,7 @@ public class TestResults {
         System.out.println("Good Probabilities: " + Arrays.toString(data.goodProbabilities.toArray()));
 
         for (VoterData.ResultsForCandidateCount candidateCount : data.CollectedBallots) {
+            if (candidateCount.count < 6) continue; // debugging! skipping to the problem
             for (prunedkemeny.AbstractDemocracyClass algo : algorithms) {
                 ArrayList<Pair<Integer, Double>> coordinates = new ArrayList<>(); // plot points for good probability and average distance
                 for (VoterData.ResultsByGoodProbability goodProb : candidateCount.VoterDataCollection) {
