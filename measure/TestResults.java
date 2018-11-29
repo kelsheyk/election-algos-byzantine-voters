@@ -15,6 +15,10 @@ public class TestResults {
     final static VoterData data = new VoterData();
 
     public static void main(String[] args) throws Exception {
+        ArrayList<Object> algorithms = new ArrayList<>();
+        algorithms.add(new prunedkemeny.PrunedKemeny());
+
+
         System.out.println("Ideal Order: " + Arrays.toString(data.CollectedBallots.toArray())); // prints each ResultsByCandidateCount which prints the ideal order
         System.out.println("Good Probabilities: " + Arrays.toString(data.goodProbabilities.toArray()));
 
@@ -25,9 +29,11 @@ public class TestResults {
             for (VoterData.ResultsByGoodProbability goodProb : candidateCount.VoterDataCollection) {
                 int[] distances = new int[data.aggregateBallots];
                 for (int i = 0; i < goodProb.elections.size(); i++) {
-                    prunedkemeny.PrunedKemeny pk = new prunedkemeny.PrunedKemeny(goodProb.elections.get(i), data.badVoters);
-                    ArrayList<String> result = pk.run();
-                    distances[i] = findDistance(candidateCount.idealOrder, result);
+                    for (Object algo : algorithms) {
+                        prunedkemeny.PrunedKemeny pk = (prunedkemeny.PrunedKemeny)algo;
+                        ArrayList<String> result = pk.run(goodProb.elections.get(i), data.badVoters);
+                        distances[i] = findDistance(candidateCount.idealOrder, result);
+                    }
                 }
                 /// shamelessly copied from https://www.baeldung.com/java-array-sum-average
                 double avgDistance =  Arrays.stream(distances).average().orElse(Double.NaN);
