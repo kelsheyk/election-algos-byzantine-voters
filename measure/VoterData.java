@@ -48,7 +48,7 @@ public class VoterData {
             ArrayList<String> returnVal = new ArrayList<>();
 
             algorithmCoordinates.forEach((k, v) ->
-                    returnVal.add("coordinates { " + Arrays.toString(v.toArray()) + "}; \\legend{" + k + "}" + System.lineSeparator())
+                    returnVal.add("coordinates { " + Arrays.toString(v.toArray()) + "}; \\legend{" + k + "}")
                     );
 
             return returnVal;

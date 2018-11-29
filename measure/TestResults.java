@@ -10,6 +10,7 @@ import mergedsort.MergeSort;
 import mergedsort.MergeSortUnpruned;
 import org.javatuples.Pair;
 import prunedkemeny.PrunedKemeny;
+import measure.VoterData;
 
 /*
 Main method creates a VoterData which will generate 50 voter preferences for each candidate number and good probability
@@ -32,28 +33,25 @@ public class TestResults {
         System.out.println("Good Probabilities: " + Arrays.toString(data.goodProbabilities.toArray()));
 
         for (VoterData.ResultsForCandidateCount candidateCount : data.CollectedBallots) {
-
-            ArrayList<Pair<Integer, Double>> coordinates = new ArrayList<>(); // plot points for good probability and average distance
-
             for (prunedkemeny.AbstractDemocracyClass algo : algorithms) {
+                ArrayList<Pair<Integer, Double>> coordinates = new ArrayList<>(); // plot points for good probability and average distance
                 for (VoterData.ResultsByGoodProbability goodProb : candidateCount.VoterDataCollection) {
                     int[] distances = new int[data.aggregateBallots];
-                        for (int i = 0; i < goodProb.elections.size(); i++) {
-                            ArrayList<String> result = algo.run(goodProb.elections.get(i), data.badVoters);
-                            distances[i] = findDistance(candidateCount.idealOrder, result);
-                        }
-                    /// shamelessly copied from https://www.baeldung.com/java-array-sum-average
+                    for (int i = 0; i < data.aggregateBallots; i++) {
+                        ArrayList<String> result = algo.run(goodProb.elections.get(i), data.badVoters);
+                        distances[i] = findDistance(candidateCount.idealOrder, result);
+                    }
+                    /// Thanks https://www.baeldung.com/java-array-sum-average
                     double avgDistance =  Arrays.stream(distances).average().orElse(Double.NaN);
                     coordinates.add(new Pair<Integer, Double>(goodProb.probability, avgDistance));
                 }
                 candidateCount.RecordAlgorithmResults(algo.getName(), coordinates);
             }
-
-            System.out.println("For " + candidateCount.count + " candidates:");
-            System.out.println(Arrays.toString(candidateCount.GetAllAlgorithmResultsForLatex().toArray()));
-            // this should have printed something easily portable to https://www.overleaf.com/learn/latex/Pgfplots_package
-            System.out.println("-----");
-
+            System.out.println(" ## For " + candidateCount.count + " candidates: ## ");
+            // this should have printed something easily portable to https://www.overleaf.com/learn/latex/Pgfplots_package#Plotting_from_data
+            for (String ln : candidateCount.GetAllAlgorithmResultsForLatex()) {
+                System.out.println(ln);
+            }
         }
     }
 
