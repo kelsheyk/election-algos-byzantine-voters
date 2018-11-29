@@ -7,7 +7,8 @@ import java.util.HashMap;
 import org.javatuples.Pair;
 
 
-public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass {
+public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{
+    public String getName() {return "Pruned Kemeny";}
     int numVoters;
     int numCandidates;
     // Number of voters to prune out
@@ -36,8 +37,8 @@ public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass {
         setVoterDataAndPermutation(vp.parseVotes(), numByzantine);
     }
 
-    public PrunedKemeny(ArrayList<ArrayList<String>> voterData, int numByzantine) throws Exception {
-        setVoterDataAndPermutation(voterData, numByzantine);
+    public PrunedKemeny() throws Exception {
+
     }
 
     private void setVoterDataAndPermutation(ArrayList<ArrayList<String>> voterData, int numByzantine) {
@@ -179,7 +180,14 @@ public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass {
     *  Run Pruned Kemeny:
     *    Find the ranking with the maximum Kemeny Young Score & return it.
     */
+    public ArrayList<String> run(ArrayList<ArrayList<String>> voterData, int numByzantine) {
+        setVoterDataAndPermutation(voterData, numByzantine);
+        return this.run();
+
+    }
+
     public ArrayList<String> run() {
+
         ArrayList<String> r;
         int score;
         HashMap<Pair, Integer> prunedBallot;

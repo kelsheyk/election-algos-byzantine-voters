@@ -6,7 +6,8 @@ import java.util.HashMap;
 import org.javatuples.Pair;
 
 
-public class Kemeny {
+public class Kemeny extends prunedkemeny.AbstractDemocracyClass {
+    public String getName() {return "Kemeny";}
     int numVoters;
     int numCandidates;
     // Number of voters to prune out
@@ -35,8 +36,13 @@ public class Kemeny {
         setVoterDataAndPermutation(vp.parseVotes(), numByzantine);
     }
 
-    public Kemeny(ArrayList<ArrayList<String>> voterData, int numByzantine) throws Exception {
+    public Kemeny() {
+
+    }
+
+    public ArrayList<String> run (ArrayList<ArrayList<String>> voterData, int numByzantine) {
         setVoterDataAndPermutation(voterData, numByzantine);
+        return this.run();
     }
 
     private void setVoterDataAndPermutation(ArrayList<ArrayList<String>> voterData, int numByzantine) {

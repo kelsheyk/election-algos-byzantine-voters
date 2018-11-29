@@ -6,16 +6,30 @@ import org.javatuples.Pair;
 import prunedkemeny.VoteParser;
 import prunedkemeny.AbstractDemocracyClass;
 
-public class MergeSort extends AbstractDemocracyClass{
+public class MergeSort extends prunedkemeny.AbstractDemocracyClass {
+    public String getName() {return "Merge Sort Pruned";}
     public ArrayList<ArrayList<String>> voterData;
     private Integer numCandidates;
     private ArrayList<String> candidateList;
     private HashMap<Pair, Integer> ballot;
     private Integer numVoters;
-    private Integer numByzantine;
+    protected Integer numByzantine;
+
+
+    public MergeSort() {
+
+    }
+
     public MergeSort(ArrayList<ArrayList<String>> voterData, Integer numByzantine) {
         this.voterData = voterData;
         this.numByzantine = numByzantine;
+    }
+
+    public ArrayList<String> run(ArrayList<ArrayList<String>> voterData, int numByzantine) {
+        this.voterData = voterData;
+        this.numByzantine = numByzantine;
+        return this.run();
+
     }
 
     public ArrayList<String> run() {
@@ -33,7 +47,7 @@ public class MergeSort extends AbstractDemocracyClass{
             sortedCandidates = sortCandidates();
 
         }
-        output(sortedCandidates);
+        // output(sortedCandidates);
         return sortedCandidates;
 
     }

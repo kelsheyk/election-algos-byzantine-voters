@@ -5,6 +5,7 @@ import org.javatuples.Pair;
 
 
 public class RankedPairs extends prunedkemeny.AbstractDemocracyClass {
+    public String getName() {return "Ranked Pairs";}
     int numVoters;
     int numCandidates;
     // Number of voters to prune out
@@ -28,8 +29,13 @@ public class RankedPairs extends prunedkemeny.AbstractDemocracyClass {
         setVoterData(vp.parseVotes(), numByzantine);
     }
 
-    public RankedPairs(ArrayList<ArrayList<String>> voterData, int numByzantine) throws Exception {
+    public RankedPairs() {
+
+    }
+
+    public ArrayList<String> run(ArrayList<ArrayList<String>> voterData, int numByzantine) {
         setVoterData(voterData, numByzantine);
+        return this.run();
     }
 
     private void setVoterData(ArrayList<ArrayList<String>> voterData, int numByzantine) {
