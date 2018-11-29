@@ -53,6 +53,7 @@ public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{
         // compute P.
         Permutation permutation = new Permutation();
         this.P = permutation.performPermute(this.candidateList);
+        this.maxScore = 0;
         tallyVotes();
     }
 
@@ -131,12 +132,12 @@ public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{
         // Find the F most distant ranks from r & prune
         int maxDist;
         int maxIndex;
-        ArrayList<String> maxRank;
+        ArrayList<String> maxR;
         //copy of voterData
         for (int f=0; f<F; f++) {
             maxDist = 0;
             maxIndex = 0;
-            maxRank = voterDataCopy.get(0);
+            maxR = voterDataCopy.get(0);
             for (int i=0; i<voterDataCopy.size(); i++) {
                 if (distance(r, voterDataCopy.get(i)) > maxDist) {
                     maxDist = distance(r, voterDataCopy.get(i));
@@ -148,10 +149,10 @@ public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{
             // subtract 1 from prunedBallot for all pairs in removed rank
             HashMap<String, Integer> innerMap;
             String c1, c2;
-            for (int i=0; i<maxRank.size(); i++) {
-                c1 = maxRank.get(i);
-                for (int j=i+1; j<maxRank.size(); j++) {
-                    c2 = maxRank.get(j);
+            for (int i=0; i<maxR.size(); i++) {
+                c1 = maxR.get(i);
+                for (int j=i+1; j<maxR.size(); j++) {
+                    c2 = maxR.get(j);
                     Pair<String, String> pair = new Pair<>(c1, c2);
                     prunedBallot.put(pair, prunedBallot.get(pair)-1);
                 }
@@ -173,7 +174,7 @@ public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{
             for (int j=i+1; j<ranking.size(); j++) {
                 c2 = ranking.get(j);
                 Pair<String, String> pair = new Pair<>(c1, c2);
-                score = score + this.ballot.get(pair);
+                score = score + ballot.get(pair);
             }
         }
         return score;
@@ -199,7 +200,7 @@ public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{
             
             // Non-Pruned Kemeny
             //score = KemenyYoungScore(r, this.ballot);
-            
+
             // Pruned Kemeny
             prunedBallot = pruneBallot(r, this.numByzantine);
             score = KemenyYoungScore(r, prunedBallot);
@@ -208,7 +209,7 @@ public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{
                 this.maxRank = r;
             }
         }
-        return maxRank;
+        return this.maxRank;
     }
     
     /*

@@ -57,6 +57,8 @@ public class Kemeny extends prunedkemeny.AbstractDemocracyClass {
         // compute P.
         Permutation permutation = new Permutation();
         this.P = permutation.performPermute(this.candidateList);
+        this.maxScore = 0;
+        this. maxRank = null;
         tallyVotes();
     }
 
