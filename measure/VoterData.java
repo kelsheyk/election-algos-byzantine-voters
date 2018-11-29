@@ -164,7 +164,7 @@ public class VoterData {
 
     // Create all the election data and voter preferences in memory
     // Some separate cass or method will pipe it into the different algorithms and calculate distances from ideal
-    public void VoterData () {
+    public VoterData () {
         for (int i = minCandidates; i < maxCandidates + 1; i++) {
             CollectedBallots.add(new ResultsForCandidateCount(i)); // we need this later to populate the results into it
         }
