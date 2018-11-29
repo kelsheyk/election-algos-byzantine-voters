@@ -38,6 +38,8 @@ Since we need to reproduce the results, our values here are drawn from the Prune
 ### Constructing the ballots, aka Voter Data
 * for 1-77 times and for each candidate pair, match the ideal order a percent of the time that matches the good probability, otherwise the opposite order
 * for 1-33 times and for each candidate pair, invert the ideal order 90 percent of the time, otherwise the ideal order
+* **** WARNING: We don't scramble bad votes exactly as described because you can't just invert one pair and leave the rest as is without potentially causing a cycle.
+    * Instead we look at each candidate in the ideal list and swap it with the candidate above it if there's a bad vote (or with the last candidate if there's a bad vote on the first)
 * shuffle the order of the ballots
 * repeat 50 times so we have 50 aggregate ballots per candidate count and good probability
 
