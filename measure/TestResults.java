@@ -2,9 +2,14 @@ package measure;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
+import Kemeny.Kemeny;
+import PrunedRankedPairs.PrunedRankedPairs;
+import RankedPairs.RankedPairs;
+import mergedsort.MergeSort;
+import mergedsort.MergeSortUnpruned;
 import org.javatuples.Pair;
+import prunedkemeny.PrunedKemeny;
 
 /*
 Main method creates a VoterData which will generate 50 voter preferences for each candidate number and good probability
@@ -15,9 +20,13 @@ public class TestResults {
     final static VoterData data = new VoterData();
 
     public static void main(String[] args) throws Exception {
-        ArrayList<Object> algorithms = new ArrayList<>();
-        algorithms.add(new prunedkemeny.PrunedKemeny());
-
+        ArrayList<prunedkemeny.AbstractDemocracyClass> algorithms = new ArrayList<>();
+        algorithms.add(new MergeSort());
+        algorithms.add(new MergeSortUnpruned());
+        algorithms.add(new PrunedRankedPairs());
+        algorithms.add(new RankedPairs());
+        algorithms.add(new Kemeny());
+        algorithms.add(new PrunedKemeny());
 
         System.out.println("Ideal Order: " + Arrays.toString(data.CollectedBallots.toArray())); // prints each ResultsByCandidateCount which prints the ideal order
         System.out.println("Good Probabilities: " + Arrays.toString(data.goodProbabilities.toArray()));
@@ -26,20 +35,19 @@ public class TestResults {
 
             ArrayList<Pair<Integer, Double>> coordinates = new ArrayList<>(); // plot points for good probability and average distance
 
-            for (VoterData.ResultsByGoodProbability goodProb : candidateCount.VoterDataCollection) {
-                int[] distances = new int[data.aggregateBallots];
-                for (int i = 0; i < goodProb.elections.size(); i++) {
-                    for (Object algo : algorithms) {
-                        prunedkemeny.PrunedKemeny pk = (prunedkemeny.PrunedKemeny)algo;
-                        ArrayList<String> result = pk.run(goodProb.elections.get(i), data.badVoters);
-                        distances[i] = findDistance(candidateCount.idealOrder, result);
-                    }
+            for (prunedkemeny.AbstractDemocracyClass algo : algorithms) {
+                for (VoterData.ResultsByGoodProbability goodProb : candidateCount.VoterDataCollection) {
+                    int[] distances = new int[data.aggregateBallots];
+                        for (int i = 0; i < goodProb.elections.size(); i++) {
+                            ArrayList<String> result = algo.run(goodProb.elections.get(i), data.badVoters);
+                            distances[i] = findDistance(candidateCount.idealOrder, result);
+                        }
+                    /// shamelessly copied from https://www.baeldung.com/java-array-sum-average
+                    double avgDistance =  Arrays.stream(distances).average().orElse(Double.NaN);
+                    coordinates.add(new Pair<Integer, Double>(goodProb.probability, avgDistance));
                 }
-                /// shamelessly copied from https://www.baeldung.com/java-array-sum-average
-                double avgDistance =  Arrays.stream(distances).average().orElse(Double.NaN);
-                coordinates.add(new Pair<Integer, Double>(goodProb.probability, avgDistance));
+                candidateCount.RecordAlgorithmResults(algo.getName(), coordinates);
             }
-            candidateCount.RecordAlgorithmResults("Pruned Kemeny", coordinates);
 
             System.out.println("For " + candidateCount.count + " candidates:");
             System.out.println(Arrays.toString(candidateCount.GetAllAlgorithmResultsForLatex().toArray()));
