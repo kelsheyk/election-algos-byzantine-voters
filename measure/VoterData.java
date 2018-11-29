@@ -1,12 +1,12 @@
 package measure;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
+
+import com.sun.org.apache.xerces.internal.impl.dv.xs.IntegerDV;
 import org.javatuples.Pair;
 
+import javax.print.DocFlavor;
 import javax.xml.transform.Result;
 
 public class VoterData {
@@ -15,16 +15,17 @@ public class VoterData {
     // Each chart runs 50 elections at each of the 8 good probabilities .55 .60 .65 .70 .75 .80 .85 .9
     // each election involves 100 voters and 33 bad voters
     private final int totalVoters = 100;
-    private final int badVoters = 33; // must be less than a third of total
+    public final int badVoters = 33; // must be less than a third of total
     private final int goodVoters = totalVoters - badVoters;
-    private final int aggregateBallots = 50;
+    public final int aggregateBallots = 50;
     private final int badProb = 90;
     private final int goodProbMin = 55;
     private final int goodProbMax = 90;
     private final int goodProbIncrement = 5;
     private final int minCandidates = 3;
     private final int maxCandidates = 8; // they'll be named alphabetically automatically so don't go over 26 unless you tweak how they're named
-    private final ArrayList<Integer> goodProbabilities = new ArrayList<>();
+    public final ArrayList<Integer> goodProbabilities = new ArrayList<>();
+    private Random random = new Random();
 
     // Collected Ballots [Good Probabilities] [ Elections 0 to 49] [ Voter Preferences in order 0 to candidate count-1]
     // This started out just a big matrix of lists but i made objects instead because i think i'll need extra properties later
@@ -37,6 +38,21 @@ public class VoterData {
         final int count;
         final ArrayList<String> idealOrder;
         final ArrayList<ResultsByGoodProbability> VoterDataCollection = new ArrayList<>();
+        final private HashMap<String, ArrayList<Pair<Integer, Double>>> algorithmCoordinates = new HashMap<>();
+
+        public void RecordAlgorithmResults (String nameOfAlgorithm, ArrayList<Pair<Integer, Double>> points) {
+            algorithmCoordinates.put(nameOfAlgorithm, points);
+        }
+
+        public ArrayList<String> GetAllAlgorithmResultsForLatex () {
+            ArrayList<String> returnVal = new ArrayList<>();
+
+            algorithmCoordinates.forEach((k, v) ->
+                    returnVal.add("coordinates { " + Arrays.toString(v.toArray()) + "}; \\legend{" + k + "}")
+                    );
+
+            return returnVal;
+        }
 
         public ResultsForCandidateCount (int count) {
            this.count = count;
@@ -77,55 +93,78 @@ public class VoterData {
     class Election {
         final ArrayList<ArrayList<String>> electionData = new ArrayList<>();
 
-        public Election(HashMap idealPairs, int goodProb, int numOfCandidates) {
+        public Election(ArrayList<String> idealOrder, int goodProb, int numOfCandidates) {
 
             for (int i = 0; i < totalVoters; i++) {
-                ArrayList<String> voterPreferences = new ArrayList<>(numOfCandidates);
-                for (int j = 0; j < numOfCandidates; j++) {
 
-                    if (i < goodVoters) { // do good
-                        // for each candidate pair, match the ideal order a percent of the time that matches the good probability, otherwise the opposite order
-                    }
-                    else { // do evil
-                        // for each candidate pair, invert the ideal order 90 percent of the time, otherwise the ideal order
+                String[] voterPrefs = new String[idealOrder.size()];
+                voterPrefs = idealOrder.toArray(voterPrefs);
 
-                    }
-                    // need a step where i take the pairs and turn them back into an ordered list
-                    // i'm pretty sure all our algos are going to turn the list back into pairs then back into a list, but too late now
-                    /* maybe this from kelsey's pruned kemeny will help:
-                    // iterate over voter data & populate pairwise prefs
-                    ArrayList<String> voterRank;
-                    int pairwiseCount;
-                    for (int voterIndex=0; voterIndex<this.numVoters; voterIndex++) {
-                        voterRank = this.voterData.get(voterIndex);
-                        for (int i=0; i<this.numCandidates; i++) {
-                            c1 = voterRank.get(i);
-                            for (int j=i+1; j<this.numCandidates; j++) {
-                                c2 = voterRank.get(j);
-                                Pair<String, String> pair = new Pair<>(c1, c2);
-                                pairwiseCount = this.ballot.get(pair);
-                                this.ballot.put(pair, pairwiseCount + 1);
-                            }
+                for (int c = 0; c < idealOrder.size(); c++) {
+
+                    if (i < goodVoters) { //  we are good voter so try to do good
+                        if (random.nextInt(totalVoters) < goodProb) {
+                            // Match the ideal order for the pair
+                            // do nothing because voterPrefs starts out in order
+                        } else {
+                            // Invert the ideal order for the pair
+                            swapCandidates(voterPrefs, c);
+                        }
+                    } else { // we are bad voter so try to do evil
+                        if (random.nextInt(totalVoters) < badProb) { // set very high to 90
+                            // INVERT ideal order for the pair
+                            swapCandidates(voterPrefs, c);
+                        } else {
+                            // Match ideal order for the pair
+                            // do nothing because voterPrefs starts out in order
                         }
                     }
-                     */
-
                 }
-                electionData.add(voterPreferences);
+
+                electionData.add(new ArrayList<String>(Arrays.asList(voterPrefs)));
             }
             // mix up good and bad voters just in case order affects one of the algorithms
             Collections.shuffle(electionData);
 
+        }
 
+        private void swapCandidates(String[] voterPrefs, int c) {
+            String swapA = voterPrefs[c];
+            String swapB;
+            if (c == 0) {
+                swapB = voterPrefs[voterPrefs.length - 1];
+                voterPrefs[c] = swapB;
+                voterPrefs[voterPrefs.length - 1] = swapA;
+            } else {
+                swapB = voterPrefs[c - 1];
+                voterPrefs[c] = swapB;
+                voterPrefs[c - 1] = swapA;
+            }
+            // no return because we are modifying the array directly through its reference
+        }
+
+        // Thanks Kelsey
+        private ArrayList<Pair<String, String>> SplitRankedListToPairs(ArrayList<String> idealOrder) {
+            ArrayList<Pair<String, String>> returnList = new ArrayList<>();
+
+            for (int i = 0; i < idealOrder.size(); i++ ) {
+                String c1 = idealOrder.get(i);
+                for (int j = i + 1; j < idealOrder.size(); j++ ) {
+                    String c2 = idealOrder.get(j);
+                    returnList.add(new Pair<String, String>(c1, c2));
+                }
+            }
+            return returnList;
         }
 
     }
 
 
+
+
     // Create all the election data and voter preferences in memory
-    // Some separate cass or method will pipe it into the different algorgitms and calculate distances from ideal
-    // this should probably just be tbe public constructor
-    public void run () {
+    // Some separate cass or method will pipe it into the different algorithms and calculate distances from ideal
+    public VoterData () {
         for (int i = minCandidates; i < maxCandidates + 1; i++) {
             CollectedBallots.add(new ResultsForCandidateCount(i)); // we need this later to populate the results into it
         }
@@ -136,29 +175,15 @@ public class VoterData {
 
         for (ResultsForCandidateCount candCount : CollectedBallots) {
 
-            // Borrowing this structure from Kelsey's PrunedKemeny
-            // we're converting the list of ideal canditates, "A", "B", "C" into ordered pairs like:
-            // "A/B" "A/C" "B/C".
-            // Since pairs say "A/B" is equal to "B/A", the HashMap will prevent dupes....**??????!!!???
-            // However the order is important, the first one is the voter preference over the second
-            HashMap idealPairs = new HashMap<>();
-            String c1, c2;
-            for (int i = 0; i < candCount.count; i++) {
-                c1 = candCount.idealOrder.get(i);
-                for (int j = 0; j < candCount.count; j++) {
-                    if (i != j) {
-                        c2 = candCount.idealOrder.get(j);
-                        Pair<String, String> pair = new Pair<>(c1, c2);
-                        idealPairs.put(pair, 0);
-                    }
-                }
-            }
+            /* I tried to use the vote tally hashmap and pair stuff from Kelsey's Pruned Kemeny here,
+            but Pairs considers A B != B A and so it won't work for what i need here.
+             */
 
             for (Integer goodProb : goodProbabilities) {
                 ResultsByGoodProbability results = new ResultsByGoodProbability(goodProb);
 
                 for (int i = 0; i < aggregateBallots; i++) { // 50 runs
-                    Election e = new Election(idealPairs, goodProb, candCount.count);
+                    Election e = new Election(candCount.idealOrder, goodProb, candCount.count);
                     results.elections.add(e.electionData);
 
                 }
@@ -183,21 +208,7 @@ public class VoterData {
             * script that would need to be run.
             *
              */
-
         }
-
-
-
-
-
     }
-
-    public static void main(String[] args) throws Exception {
-        VoterData d = new VoterData();
-        d.run();
-        System.out.println(Arrays.toString(d.CollectedBallots.toArray())); // prints each ResultsByCandidateCount which prints the ideal order
-        System.out.println(Arrays.toString(d.goodProbabilities.toArray()));
-    }
-
 }
 

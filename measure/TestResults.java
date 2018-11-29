@@ -1,19 +1,50 @@
 package measure;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import org.javatuples.Pair;
+
 /*
-Create a VoterData, run it (should move that to be part of constructor)
-for each algorithm we're testing:
-  for each set of voter prefs in VoterData's VoterDataCollection (50 of them)
-    send pref list to algorithm
-    get algo's ranking back
-    calculate distance from ideal pairs
-    store distance for later averaging
-
-    ... wait we need to know the candidate count and good probability here. I either need to move some of the run() code in VoterData over here
-    ... or store the candidate and goob prob info with VoterDataCollection so we can read it here
-    probably the former
-    yeah my ReadMe suggests VoterData be given the candidate count and good prob. I'vebeen acting like it's going to do everything.
-    Which is fine it's not worth moving stuff around for a school project, as long as that class is doing everything we need it to do.
-
+Main method creates a VoterData which will generate 50 voter preferences for each candidate number and good probability
+Then it loops through all that to calculate the average distance of the 50 voter prefs from the ideal
+Finally it prints the coordinates of good probability and average distance for each algorithm for each candidate count
  */
 public class TestResults {
+    final static VoterData data = new VoterData();
+
+    public static void main(String[] args) throws Exception {
+        System.out.println("Ideal Order: " + Arrays.toString(data.CollectedBallots.toArray())); // prints each ResultsByCandidateCount which prints the ideal order
+        System.out.println("Good Probabilities: " + Arrays.toString(data.goodProbabilities.toArray()));
+
+        for (VoterData.ResultsForCandidateCount candidateCount : data.CollectedBallots) {
+
+            ArrayList<Pair<Integer, Double>> coordinates = new ArrayList<>(); // plot points for good probability and average distance
+
+            for (VoterData.ResultsByGoodProbability goodProb : candidateCount.VoterDataCollection) {
+                int[] distances = new int[data.aggregateBallots];
+                for (int i = 0; i < goodProb.elections.size(); i++) {
+                    prunedkemeny.PrunedKemeny pk = new prunedkemeny.PrunedKemeny(goodProb.elections.get(i), data.badVoters);
+                    ArrayList<String> result = pk.run();
+                    distances[i] = findDistance(candidateCount.idealOrder, result);
+                }
+                /// shamelessly copied from https://www.baeldung.com/java-array-sum-average
+                double avgDistance =  Arrays.stream(distances).average().orElse(Double.NaN);
+                coordinates.add(new Pair<Integer, Double>(goodProb.probability, avgDistance));
+            }
+            candidateCount.RecordAlgorithmResults("Pruned Kemeny", coordinates);
+
+            System.out.println("For " + candidateCount.count + " candidates:");
+            System.out.println(Arrays.toString(candidateCount.GetAllAlgorithmResultsForLatex().toArray()));
+            // this should have printed something easily portable to https://www.overleaf.com/learn/latex/Pgfplots_package
+            System.out.println("-----");
+
+        }
+    }
+
+    private static int findDistance(ArrayList<String> ideal, ArrayList<String> actual) {
+        // Thank you Kelsey
+        return prunedkemeny.PrunedKemeny.distance(ideal, actual);
+    }
 }
