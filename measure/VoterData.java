@@ -23,7 +23,7 @@ public class VoterData {
     private final int goodProbMax = 90;
     private final int goodProbIncrement = 5;
     private final int minCandidates = 3;
-    private final int maxCandidates = 8; // they'll be named alphabetically automatically so don't go over 26 unless you tweak how they're named
+    private final int maxCandidates = 6; // they'll be named alphabetically automatically so don't go over 26 unless you tweak how they're named
     public final ArrayList<Integer> goodProbabilities = new ArrayList<>();
     private Random random = new Random();
 
@@ -80,50 +80,56 @@ public class VoterData {
 
         public Election(ArrayList<String> idealOrder, int goodProb, int numOfCandidates) {
 
+            ArrayList<Pair<String,String>> pairs = SplitRankedListToPairs(idealOrder);
+            String c1, c2;
+
             for (int i = 0; i < totalVoters; i++) {
 
-                String[] voterPrefs = new String[idealOrder.size()];
-                voterPrefs = idealOrder.toArray(voterPrefs);
-
-                for (int c = 0; c < idealOrder.size(); c++) {
-
-                    if (i < goodVoters) { //  we are good voter so try to do good
+                ArrayList<String> voterPrefs = new ArrayList<>();
+                
+                for (Pair<String, String>pair : pairs) {
+                    c1 = pair.getValue0();
+                    c2 = pair.getValue1();
+                    if (i < goodVoters) {  //  we are good voter so try to do good
                         if (random.nextInt(totalVoters) < goodProb) {
-                            // Match the ideal order for the pair
-                            // do nothing because voterPrefs starts out in order
+                            // pair in order.
+                            insertOrSwapCandidates(voterPrefs, c1, c2);
                         } else {
-                            // Invert the ideal order for the pair
-                            swapCandidates(voterPrefs, c);
+                            // pair in reverse order
+                            insertOrSwapCandidates(voterPrefs, c2, c1);
                         }
-                    } else { // we are bad voter so try to do evil
+                    } else { //  we are bad voter so try to do evil
                         if (random.nextInt(totalVoters) < badProb) { // set very high to 90
                             // INVERT ideal order for the pair
-                            swapCandidates(voterPrefs, c);
+                            insertOrSwapCandidates(voterPrefs, c2, c1);
                         } else {
                             // Match ideal order for the pair
-                            // do nothing because voterPrefs starts out in order
+                            insertOrSwapCandidates(voterPrefs, c1, c2);
                         }
                     }
                 }
 
-                electionData.add(new ArrayList<String>(Arrays.asList(voterPrefs)));
+
+                electionData.add(new ArrayList<String>(voterPrefs));
             }
             // mix up good and bad voters just in case order affects one of the algorithms
             Collections.shuffle(electionData);
 
         }
 
-        private void swapCandidates(String[] voterPrefs, int c) {
-            String swapA = voterPrefs[c];
-            String swapB;
-            if (c == 0) {
-                swapB = voterPrefs[voterPrefs.length - 1];
-                voterPrefs[c] = swapB;
-                voterPrefs[voterPrefs.length - 1] = swapA;
-            } else {
-                swapB = voterPrefs[c - 1];
-                voterPrefs[c] = swapB;
-                voterPrefs[c - 1] = swapA;
+        private void insertOrSwapCandidates(ArrayList<String> voterPrefs, String c1, String c2) {
+            int indexC1 = voterPrefs.indexOf(c1);
+            int indexC2 = voterPrefs.indexOf(c2);
+            if (indexC1 < 0 && indexC2 < 0) { // neither exist -- add both in order
+                voterPrefs.add(c1);
+                voterPrefs.add(c2);
+            } else if (indexC1 >= 0 && indexC2 < 0) { // c1 exists, c2 does not -- add c2 after c1
+                voterPrefs.add(indexC1+1, c2);
+            } else if (indexC1 < 0 && indexC2 >= 0) { // c2 exists, c1 does not -- add c1 before c2
+                voterPrefs.add(indexC2, c1);
+            } else { // both exist -- swap
+                voterPrefs.set(indexC1, c2);
+                voterPrefs.set(indexC2, c1);
             }
             // no return because we are modifying the array directly through its reference
         }
