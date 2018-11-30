@@ -41,6 +41,7 @@ public class PrunedRankedPairs extends prunedkemeny.AbstractDemocracyClass {
         this.candidateList = this.voterData.get(0); // Order does not matter, just grab first
         this.numCandidates = this.candidateList.size();
         this.ballot = tallyVotes(new ArrayList<Integer>());
+        this.maxScore = 0;
     }
     
     /*
@@ -201,7 +202,7 @@ public class PrunedRankedPairs extends prunedkemeny.AbstractDemocracyClass {
                 break;
             }
         }
-        
+
         // Now we have the array of badVoters populated.
         // Get the indexes of the top F
         ArrayList<Integer> badVoterIndexes = new ArrayList();
@@ -211,6 +212,7 @@ public class PrunedRankedPairs extends prunedkemeny.AbstractDemocracyClass {
             max = 0;
             for (int j=0; j<badVoters.length; j++) {
                 if (badVoters[j] > max) {
+                    max = badVoters[j];
                     maxIndex = j;
                 }
             }
@@ -229,7 +231,7 @@ public class PrunedRankedPairs extends prunedkemeny.AbstractDemocracyClass {
         ArrayList<Pair> winningPairs = new ArrayList();
         
         // sort pairwise prefs
-        List<Map.Entry<Pair, Integer>> sortedBallot = sortByValue(data); 
+        List<Map.Entry<Pair, Integer>> sortedBallot = sortByValue(data);
         
         for (Map.Entry<Pair, Integer> en : sortedBallot) {
             Pair pair = en.getKey();

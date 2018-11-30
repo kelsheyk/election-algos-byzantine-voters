@@ -156,6 +156,7 @@ public class MergeSort extends prunedkemeny.AbstractDemocracyClass {
             max = 0;
             for (int j=0; j<badVoters.length; j++) {
                 if (badVoters[j] > max) {
+                    max = badVoters[j];
                     maxIndex = j;
                 }
             }
