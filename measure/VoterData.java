@@ -38,21 +38,6 @@ public class VoterData {
         final int count;
         final ArrayList<String> idealOrder;
         final ArrayList<ResultsByGoodProbability> VoterDataCollection = new ArrayList<>();
-        final private HashMap<String, ArrayList<Pair<Integer, Double>>> algorithmCoordinates = new HashMap<>();
-
-        public void RecordAlgorithmResults (String nameOfAlgorithm, ArrayList<Pair<Integer, Double>> points) {
-            algorithmCoordinates.put(nameOfAlgorithm, points);
-        }
-
-        public ArrayList<String> GetAllAlgorithmResultsForLatex () {
-            ArrayList<String> returnVal = new ArrayList<>();
-
-            algorithmCoordinates.forEach((k, v) ->
-                    returnVal.add("coordinates { " + Arrays.toString(v.toArray()) + "}; \\legend{" + k + "}")
-                    );
-
-            return returnVal;
-        }
 
         public ResultsForCandidateCount (int count) {
            this.count = count;

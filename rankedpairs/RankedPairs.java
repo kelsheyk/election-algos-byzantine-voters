@@ -6,7 +6,9 @@ import RankedPairs.VoteParser;
 
 
 public class RankedPairs extends prunedkemeny.AbstractDemocracyClass {
-    public String getName() {return "Ranked Pairs";}
+    public String getName() {return "RP";}
+    public String getColor() {return "blue";}
+    public String getMark() {return "square";}
     int numVoters;
     int numCandidates;
     // Number of voters to prune out

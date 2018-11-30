@@ -11,7 +11,9 @@ import prunedkemeny.Permutation;
 
 
 public class PrunedKemeny extends prunedkemeny.AbstractDemocracyClass{
-    public String getName() {return "Pruned Kemeny";}
+    public String getName() {return "PrunedK";}
+    public String getColor() {return "red";}
+    public String getMark() {return "o";}
     int numVoters;
     int numCandidates;
     // Number of voters to prune out

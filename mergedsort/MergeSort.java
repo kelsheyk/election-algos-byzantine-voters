@@ -7,7 +7,9 @@ import prunedkemeny.VoteParser;
 import prunedkemeny.AbstractDemocracyClass;
 
 public class MergeSort extends prunedkemeny.AbstractDemocracyClass {
-    public String getName() {return "Merge Sort Pruned";}
+    public String getName() {return "PrunedmSort";}
+    public String getColor() {return "green";}
+    public String getMark() {return "o";}
     public ArrayList<ArrayList<String>> voterData;
     private Integer numCandidates;
     private ArrayList<String> candidateList;

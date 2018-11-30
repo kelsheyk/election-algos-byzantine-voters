@@ -5,5 +5,7 @@ import java.util.ArrayList;
 abstract public class AbstractDemocracyClass {
     abstract public ArrayList<String> run(ArrayList<ArrayList<String>> voterData, int numByzantine);
     abstract public String getName();
+    abstract public String getColor();
+    abstract public String getMark();
 
 }

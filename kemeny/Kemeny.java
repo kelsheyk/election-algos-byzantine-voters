@@ -10,7 +10,9 @@ import Kemeny.Permutation;
 
 
 public class Kemeny extends prunedkemeny.AbstractDemocracyClass {
-    public String getName() {return "Kemeny";}
+    public String getName() {return "K";}
+    public String getColor() {return "red";}
+    public String getMark() {return "square";}
     int numVoters;
     int numCandidates;
     // Number of voters to prune out

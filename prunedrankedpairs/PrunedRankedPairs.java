@@ -6,6 +6,10 @@ import PrunedRankedPairs.VoteParser;
 
 
 public class PrunedRankedPairs extends prunedkemeny.AbstractDemocracyClass {
+    public String getName() {return "PrunedRP";}
+    public String getColor() {return "blue";}
+    public String getMark() {return "o";}
+
     int numVoters;
     int numCandidates;
     // Number of voters to prune out
@@ -32,7 +36,6 @@ public class PrunedRankedPairs extends prunedkemeny.AbstractDemocracyClass {
     public PrunedRankedPairs() throws Exception {
     }
 
-    public String getName() {return "Pruned Ranked Pairs";}
 
     private void setVoterData(ArrayList<ArrayList<String>> voterData, int numByzantine) {
         this.voterData = voterData;

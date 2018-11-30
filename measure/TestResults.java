@@ -33,8 +33,9 @@ public class TestResults {
         System.out.println("Good Probabilities: " + Arrays.toString(data.goodProbabilities.toArray()));
 
         for (VoterData.ResultsForCandidateCount candidateCount : data.CollectedBallots) {
-            if (candidateCount.count < 6) continue; // debugging! skipping to the problem
-            for (prunedkemeny.AbstractDemocracyClass algo : algorithms) {
+            System.out.println(" ## For " + candidateCount.count + " candidates: ## ");
+            for (int a = 0; a < algorithms.size(); a++) { // using for loop instead of foreach so they run in order so kemeny is always last
+                prunedkemeny.AbstractDemocracyClass algo = algorithms.get(a);
                 ArrayList<Pair<Integer, Double>> coordinates = new ArrayList<>(); // plot points for good probability and average distance
                 for (VoterData.ResultsByGoodProbability goodProb : candidateCount.VoterDataCollection) {
                     int[] distances = new int[data.aggregateBallots];
@@ -46,12 +47,23 @@ public class TestResults {
                     double avgDistance =  Arrays.stream(distances).average().orElse(Double.NaN);
                     coordinates.add(new Pair<Integer, Double>(goodProb.probability, avgDistance));
                 }
-                candidateCount.RecordAlgorithmResults(algo.getName(), coordinates);
-            }
-            System.out.println(" ## For " + candidateCount.count + " candidates: ## ");
-            // this should have printed something easily portable to https://www.overleaf.com/learn/latex/Pgfplots_package#Plotting_from_data
-            for (String ln : candidateCount.GetAllAlgorithmResultsForLatex()) {
-                System.out.println(ln);
+                /* print out the coordinates and algorithm name such that it can be dropped into latex like so:
+                    https://www.overleaf.com/learn/latex/Pgfplots_package#Plotting_from_data
+                    \addplot[color=red,mark=square,] coordinates { (55, 1.34) (60, 1.42) ... (90, 0.78) }; \addlegendentry{K}
+                    I'm using both string builder and string format so the code is readable and i can split out the coords
+                    Performance isn't an issue since we'll be waiting on PrunedKemeny for hours anyway
+                */
+                StringBuilder sb = new StringBuilder(165);
+                sb.append(String.format("\\addplot[color=%s,mark=%s,] coordinates { ", algo.getColor(), algo.getMark()));
+                for (int c = 0; c < coordinates.size(); c++) {
+                    sb.append(coordinates.get(c)
+                            .toString()
+                            .replace("[", "(")
+                            .replace("]",")")
+                    );
+                }
+                sb.append(String.format(" }; \\addlegendentry{%s}", algo.getName()));
+                System.out.println(sb);
             }
         }
     }
