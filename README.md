@@ -1,5 +1,12 @@
 # Election Algorithms with Byzantine Voters - Term Project
 
+## To build and run the measuring package:
+export CLASSPATH=${CLASSPATH}:./Libraries/*
+javac ./*/*.java
+java measure.TestResults
+
+## Ranking Algorithms
+
 Input File Format: Each line in the file represents a single voter's ranking of candidates. Example:  
 a,b,c  
 c,b,a  
