@@ -18,9 +18,9 @@ public class VoterData {
     public final int badVoters = 33; // must be less than a third of total
     private final int goodVoters = totalVoters - badVoters;
     public final int aggregateBallots = 50;
-    private final int badProb = 90;
-    private final int goodProbMin = 55;
-    private final int goodProbMax = 90;
+    private final int badProb = 90; // out of 100
+    private final int goodProbMin = 55; // out of 100
+    private final int goodProbMax = 90; // out of 100
     private final int goodProbIncrement = 5;
     private final int minCandidates = 3;
     private final int maxCandidates = 6; // they'll be named alphabetically automatically so don't go over 26 unless you tweak how they're named
@@ -91,7 +91,7 @@ public class VoterData {
                     c1 = pair.getValue0();
                     c2 = pair.getValue1();
                     if (i < goodVoters) {  //  we are good voter so try to do good
-                        if (random.nextInt(totalVoters) < goodProb) {
+                        if (random.nextInt(100) < goodProb) {
                             // pair in order.
                             insertOrSwapCandidates(voterPrefs, c1, c2);
                         } else {
@@ -99,7 +99,7 @@ public class VoterData {
                             insertOrSwapCandidates(voterPrefs, c2, c1);
                         }
                     } else { //  we are bad voter so try to do evil
-                        if (random.nextInt(totalVoters) < badProb) { // set very high to 90
+                        if (random.nextInt(100) < badProb) { // set very high to 90
                             // INVERT ideal order for the pair
                             insertOrSwapCandidates(voterPrefs, c2, c1);
                         } else {
